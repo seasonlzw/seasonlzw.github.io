@@ -1,0 +1,8 @@
+.tool-bar {
+    background: linear-gradient(to top, #eee 57%,#fff 90%,#fff 100%) !important;
+    border: 0px solid #ccc;
+    padding: 4px;
+}
+.tool-group {
+    margin-right: 6px;
+}
