@@ -4,7 +4,7 @@
             执行窗口：
             <a-button-group class="tool-group">
                 <a-button icon="delete" @click="onClean">清空</a-button>
-                <a-button icon="close" @click="onTerminate">终止</a-button>
+                <a-button icon="close" type="danger" :disabled="worker === undefined" @click="onTerminate">终止</a-button>
             </a-button-group>
         </div>
         <div class="run-output" ref="output">
@@ -72,8 +72,9 @@ const MSG_CODE = {
     LOG: 2,
     WARN: 3,
     ERROR: 4,
-    STATE: 5,
-    INPUT: 6
+    LINENO: 5,
+    STATE: 6,
+    INPUT: 7
 };
 
 // 线程函数
@@ -104,6 +105,16 @@ function workerHost(MSG_CODE, global) {
         self.postMessage({code:MSG_CODE.ERROR, data:JSON.stringify(Array.prototype.slice.call(arguments, 0))});
     }
 
+    // 登记当前行号
+    function setDebugLineNumber(_lineNo) {
+        self.postMessage({code:MSG_CODE.LINENO, data:_lineNo});
+    }
+
+    // 在宿主中反馈异常
+    function notifyErrorInHost(_error) {
+        throw _error;
+    }
+
     // 返回等待状态有效的Promise
     function waitState(_intervalMS) {
         function checkState(_fn) {
@@ -130,12 +141,15 @@ function workerHost(MSG_CODE, global) {
         switch (_msg.code) {
             case MSG_CODE.CODE:
                 // 加载并运行主线程传递来的代码
-                setTimeout(new Function("global", "exit", "console", "print", "input", _msg.data), 0, 
+                (new Function("global", "exit", "console", "print", "input", _msg.data))(
                     self, 
                     exit,
-                    {log, warn, error}, 
+                    {log, warn, error, exit, setDebugLineNumber}, 
                     log,
-                    input);
+                    input
+                ).catch(_error => {
+                    setTimeout(notifyErrorInHost, 0, _error);
+                });
                 break;
 
             case MSG_CODE.STATE:
@@ -172,15 +186,22 @@ function startCode(_code) {
     if (this.hostBlob && this.hostURL) {
         this.terminateWorker();
         this.worker = new Worker(this.hostURL);
-        this.worker.addEventListener("message", (_e) => {
-            this.onMessage(_e.data);
-        })
-        this.worker.addEventListener("error", (_e) => {
-            let _errorStr = `发生错误！行号：${_e.lineno - 2}。错误描述：${_e.message}`;
-            console.log(_errorStr);
-            outputLog.apply({vue:this, type:"error"}, [_errorStr]);
-        })
-        this.postMessage({code: MSG_CODE.CODE, data: regenerator.compile(`(async function () { ${_code} })()`).code});
+        if (this.worker) {
+            this.worker.addEventListener("message", (_e) => {
+                this.onMessage(_e.data);
+            });
+            this.worker.addEventListener("error", (_e) => {
+                let _errorStr = `【发生错误】行号：${this.runLineNumber}。\n\t\t错误描述：${_e.message}`;
+                console.log(_errorStr);
+                outputLog.apply({vue:this, type:"error"}, [_errorStr]);
+            });
+            let lineNo = 2;
+            _code = "console.setDebugLineNumber(1);\n" + _code.replace(/\n/ig, () => `\nconsole.setDebugLineNumber(${lineNo++});\n`);
+            this.runLineNumber = 0;
+            this.postMessage({code: MSG_CODE.CODE, data: regenerator.compile(`return (async function () { ${_code} })()`).code});
+        } else {
+            this.$message.error("无法启动代码执行任务，本次运行失败！");
+        }
     } else {
         this.timeoutID = setTimeout(startCode, 100, _code);
     }
@@ -193,8 +214,8 @@ const logTextMapper = {
     "\t": "&nbsp;&nbsp;&nbsp;&nbsp;",
     "&": "&amp;",
     '"': "&quot;",
-    "\\r": " ",
-    "\\n": "<br />"
+    "\r": " ",
+    "\n": "<br />"
 }
 
 // 格式化日志字符串
@@ -245,6 +266,7 @@ export default {
             timeoutID: undefined,
             hostBlob: undefined,
             hostURL: undefined,
+            runLineNumber: 0,
             showInput: false,
             inputTip: undefined,
             defaultInputValue: ""
@@ -284,6 +306,10 @@ export default {
 
                 case MSG_CODE.ERROR:
                     outputLog.apply({vue: this, type: "error"}, JSON.parse(_msg.data));
+                    break;
+
+                case MSG_CODE.LINENO:
+                    this.runLineNumber = _msg.data;
                     break;
 
                 case MSG_CODE.INPUT:

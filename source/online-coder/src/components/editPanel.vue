@@ -12,6 +12,10 @@
                 <a-button icon="redo" @click="onRedo">重做</a-button>
             </a-button-group>
             <a-button-group class="tool-group">
+                <a-button icon="file-search" @click="onSearch">查找</a-button>
+                <a-button icon="file-sync" @click="onReplace">替换</a-button>
+            </a-button-group>
+            <a-button-group class="tool-group">
                 <a-button icon="play-square" @click="onRun">运行</a-button>
             </a-button-group>
         </div>
@@ -51,18 +55,37 @@
     min-height: 0px !important;
     margin-bottom: 0px !important;
 }
+
+@import url('../assets/editorTheme.css');
+
 </style>
 
 <script>
 import CodeMirror from 'codemirror/lib/codemirror'
 import "codemirror/lib/codemirror.css";
+
 import "codemirror/mode/javascript/javascript";
+
+import "codemirror/addon/fold/foldgutter.css";
 import "codemirror/addon/fold/foldcode";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/comment-fold";
 import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/indent-fold";
 import "codemirror/addon/fold/xml-fold";
+
+import "codemirror/addon/hint/show-hint.css";
+import "codemirror/addon/hint/show-hint";
+import "codemirror/addon/hint/javascript-hint";
+
+import "codemirror/addon/dialog/dialog.css";
+import "codemirror/addon/search/matchesonscrollbar.css";
+import "codemirror/addon/dialog/dialog";
+import "codemirror/addon/search/searchcursor";
+import "codemirror/addon/search/search";
+import "codemirror/addon/scroll/annotatescrollbar";
+import "codemirror/addon/search/matchesonscrollbar";
+import "codemirror/addon/search/jump-to-line";
 
 export default {
     data () {
@@ -112,30 +135,46 @@ export default {
         onRun() {
             let data = this.editor.getValue();
             this.$emit("submit", data);
-        }
+        },
+        onSearch() {
+            this.editor.execCommand("find");
+        },
+        onReplace() {
+            this.editor.execCommand("replace");
+        },
     },
     mounted () {
         this.editor = CodeMirror.fromTextArea(this.$refs.codeEditor, {
             value: "",
-            mode: "text/javascript",
+            mode: {
+                name: "javascript", 
+                globalVars: true
+            },
             lineNumbers: true,
             tabSize: 4,
             indentUnit: 4,
             autofocus: true,
+            theme: "seasonStyle",
             extraKeys: {
                 "Ctrl-Q": _editor => _editor.foldCode(_editor.getCursor()), 
                 "Ctrl-Space": "autocomplete",
-                "Ctrl-S": () => this.onSave()
+                "Ctrl-S": () => this.onSave(),
+                "F5": () => this.onRun(),
+                "F3": "findPersistent"
             },
             foldGutter: true,
             gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
         });
-        fetch("./js/demo.js").then(
-            _response => _response.text()
+        let codePath = location.href;
+        let codeIndex = codePath.indexOf("?");
+        codePath = ((codeIndex < 0) || (codeIndex >= codePath.length - 1)) ? "demo.js" : codePath.substring(codeIndex + 1);
+        fetch(`./js/${codePath}`).then(
+            _response => {
+                return (_response.ok && (_response.headers.get("Content-Type").indexOf("javascript") >= 0)) ? _response.text() : `// 无法加载代码文件 "${codePath}" `;
+            }
         ).then(
             _text => this.editor.setValue(_text)
         );
-        //this.editor.foldCode(CodeMirror.Pos(13, 0));
     }
 }
 </script>
