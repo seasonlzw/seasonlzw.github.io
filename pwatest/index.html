@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="utf-8" />
+    <!-- meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, viewport-fit=cover" / -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0" />
+    <title>Test PWA Title</title>
+    <link rel="manifest" href="./testpwa.webmanifest" />
+    <meta name="theme-color" content="#B12A34" />
+    <!--
+    <link rel="apple-touch-icon-precomposed" href="./logo144.png" />
+    <link rel="apple-touch-icon" sizes="57x57" href="./logo57.png" />
+    <link rel="apple-touch-icon" sizes="72x72" href="./logo72.png" />
+    <link rel="apple-touch-icon" sizes="114x114" href="./logo114.png" />
+    <link rel="apple-touch-icon" sizes="144x144" href="./logo144.png" />
+    < !-- link rel="shortcut icon" href="./logo144.png" /-- >
+    <link rel="shortcut icon" href="./icon1.ico" />
+    <link rel="bookmark" href="./icon2.ico" type="image/x-icon" />
+    <link rel="icon" href="./logo144.png" />
+    <meta property="og:image" content="./logo144.png" />
+    -->
+    <link rel="apple-touch-icon" href="/pwatest/icons/appicon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="微博Lite">
+    <link rel="icon" type="image/png" sizes="32x32" href="/pwatest/icons/favicon-32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/pwatest/icons/favicon-16.png">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.ico">
+    <script type="text/javascript" defer>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./work.js');
+        }
+    </script>
+    <style>
+        body {
+            /*
+            padding-top: constant(safe-area-inset-top);
+            padding-top: env(safe-area-inset-top);
+            */
+            padding-top: 0px;
+            
+            padding-left: constant(safe-area-inset-left);
+            padding-left: env(safe-area-inset-left);
+            
+            padding-right: constant(safe-area-inset-right);
+            padding-right: env(safe-area-inset-right);
+            
+            /*
+            padding-bottom: constant(safe-area-inset-bottom);
+            padding-bottom: env(safe-area-inset-bottom);
+            */
+            padding-bottom: 0px;
+
+            --safe-left: constant(safe-area-inset-left);
+            --safe-left: env(safe-area-inset-left);
+            --safe-right: constant(safe-area-inset-right);
+            --safe-right: env(safe-area-inset-right);
+            --safe-top: constant(safe-area-inset-top);
+            --safe-top: env(safe-area-inset-top);
+            --safe-bottom: constant(safe-area-inset-bottom);
+            --safe-bottom: env(safe-area-inset-bottom);
+        }
+
+        header {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 26px;
+            color: #90f;
+        }
+
+        footer {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 26px;
+            color: #f90;
+        }
+
+        .cssInfo {
+            position: fixed;
+            top: var(--safe-top);
+            bottom: var(--safe-bottom);
+            border: 1px solid #000;
+        }
+
+        .cmp {
+            position: fixed;
+            top: 17px;
+            bottom: 0px;
+            left: var(--safe-left);
+            right: var(--safe-right);
+            border: 1px solid #f90;
+        }
+    </style>
+</head>
+<body>
+    <!-- <header>Header 2</header>
+    <main></main>
+    <footer>Footer</footer>
+     -->
+    <div class="cssInfo">a</div>
+    <div class="cmp">e1</div>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <p>123</p>
+    <script type="text/javascript" defer>
+        let a = document.querySelector(".cssInfo");
+        a.innerHTML = `CSS2: ${getComputedStyle(a).top} - ${getComputedStyle(a).bottom}`;
+    </script>
+</body>
+</html>
