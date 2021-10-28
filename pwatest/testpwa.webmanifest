@@ -3,8 +3,7 @@
     "short_name": "testPwa",
     "description": "Test PWA Desc",
     "icons": [
-        {"src": "/pwatest/icons/icon-default-192.png", "sizes": "192x192", "type": "image/png"},
-        {"src": "/pwatest/icons/icon-default-512.png", "sizes": "512x512", "type": "image/png"}
+        {"src": "/pwatest/logo144.png", "sizes": "144x144", "type": "image/png"}
     ],
     "start_url": "/pwatest/index.html",
     "display": "fullscreen",
